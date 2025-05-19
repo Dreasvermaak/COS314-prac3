@@ -1,0 +1,30 @@
+===== MLP Classification Results =====
+Seed: 42
+Training file: BTC_train.csv
+Test file: BTC_test.csv
+
+MLP Configuration:
+Hidden layer sizes: (10, 5)
+Activation function: relu
+Solver: adam
+Alpha (L2 penalty): 0.0001
+Batch size: auto
+Learning rate: adaptive
+Maximum iterations: 1000
+
+Accuracy: 0.9544
+F1 Score: 0.9544
+
+Confusion Matrix:
+[[122   8]
+ [  4 129]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.97      0.94      0.95       130
+           1       0.94      0.97      0.96       133
+
+    accuracy                           0.95       263
+   macro avg       0.95      0.95      0.95       263
+weighted avg       0.95      0.95      0.95       263
