@@ -1,1 +1,9 @@
-try:\n    import numpy\n    import pandas\n    from sklearn.neural_network import MLPClassifier\n    print('All required libraries are installed')\n    exit(0)\nexcept ImportError as e:\n    print('Missing library:', e)\n    exit(1)\n
+try:
+    import numpy
+    import pandas
+    from sklearn.neural_network import MLPClassifier
+    print('All required libraries are installed')
+    exit(0)
+except ImportError as e:
+    print('Missing library:', e)
+    exit(1)

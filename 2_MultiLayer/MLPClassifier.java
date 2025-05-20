@@ -107,16 +107,17 @@ public class MLPClassifier {
     }
     
     private static boolean checkRequiredLibraries(String pythonCommand) {
+        // Fixed string with proper newlines
         String checkLibrariesScript = 
-            "try:\\n" +
-            "    import numpy\\n" +
-            "    import pandas\\n" +
-            "    from sklearn.neural_network import MLPClassifier\\n" +
-            "    print('All required libraries are installed')\\n" +
-            "    exit(0)\\n" +
-            "except ImportError as e:\\n" +
-            "    print('Missing library:', e)\\n" +
-            "    exit(1)\\n";
+            "try:\n" +
+            "    import numpy\n" +
+            "    import pandas\n" +
+            "    from sklearn.neural_network import MLPClassifier\n" +
+            "    print('All required libraries are installed')\n" +
+            "    exit(0)\n" +
+            "except ImportError as e:\n" +
+            "    print('Missing library:', e)\n" +
+            "    exit(1)\n";
         
         try {
             // Create the check script
@@ -337,10 +338,6 @@ public class MLPClassifier {
             if __name__ == "__main__":
                 main()
             """;
-        
-        Files.write(Paths.get("mlp_script.py"), pythonCode.getBytes());
-        System.out.println("Python script created: mlp_script.py");
-    
         
         Files.write(Paths.get("mlp_script.py"), pythonCode.getBytes());
         System.out.println("Python script created: mlp_script.py");
