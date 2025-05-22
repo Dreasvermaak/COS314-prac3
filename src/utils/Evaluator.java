@@ -1,8 +1,6 @@
 package utils;
 
 import weka.core.Instances;
-import weka.classifiers.Evaluation;
-import java.util.Random;
 import java.util.Arrays;
 
 public class Evaluator {
@@ -16,8 +14,8 @@ public class Evaluator {
             // Get predictions based on model type
             if (model instanceof models.GeneticProgramming) {
                 predictions = ((models.GeneticProgramming)model).predict(data);
-            } else if (model instanceof models.MultiLayerPerceptron) {
-                predictions = ((models.MultiLayerPerceptron)model).predict(data);
+            } else if (model instanceof models.MLPClassifier) {
+                predictions = ((models.MLPClassifier)model).predict(data);
             } else if (model instanceof models.DecisionTree) {
                 predictions = ((models.DecisionTree)model).predict(data);
             }
