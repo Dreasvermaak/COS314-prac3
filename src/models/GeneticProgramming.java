@@ -1,6 +1,7 @@
 package models;
 
-import utils.DataLoader;
+import weka.core.Instances;
+import weka.core.Instance;
 import java.util.*;
 
 public class GeneticProgramming {
@@ -14,7 +15,7 @@ public class GeneticProgramming {
     private double elitismRate = 0.05;
     
     private Individual bestIndividual;
-    private DataLoader.Dataset trainingData;
+    private Instances trainingData;
     
     private enum NodeType {
         FEATURE, CONSTANT, ADD, SUB, MUL, GT, LT
@@ -83,14 +84,15 @@ public class GeneticProgramming {
     }
     
     public void train(Object data) {
-        this.trainingData = (DataLoader.Dataset) data;
+        this.trainingData = (Instances) data;
         
         System.out.println("GP Training on " + trainingData.numInstances() + " instances");
-        System.out.println("Features: " + trainingData.numFeatures());
+        System.out.println("Features: " + (trainingData.numAttributes() - 1));
         
         // Check class balance
         int class0 = 0, class1 = 0;
-        for (double label : trainingData.labels) {
+        for (int i = 0; i < trainingData.numInstances(); i++) {
+            double label = trainingData.instance(i).classValue();
             if (label == 0.0) class0++;
             else class1++;
         }
@@ -180,7 +182,7 @@ public class GeneticProgramming {
         NodeType comp = comparisons[random.nextInt(comparisons.length)];
         
         Node node = new Node(comp);
-        node.left = new Node(NodeType.FEATURE, random.nextInt(trainingData.numFeatures()));
+        node.left = new Node(NodeType.FEATURE, random.nextInt(trainingData.numAttributes() - 1));
         node.right = new Node(NodeType.CONSTANT, random.nextGaussian() * 100);
         
         return node;
@@ -191,8 +193,8 @@ public class GeneticProgramming {
         NodeType op = ops[random.nextInt(ops.length)];
         
         Node opNode = new Node(op);
-        opNode.left = new Node(NodeType.FEATURE, random.nextInt(trainingData.numFeatures()));
-        opNode.right = new Node(NodeType.FEATURE, random.nextInt(trainingData.numFeatures()));
+        opNode.left = new Node(NodeType.FEATURE, random.nextInt(trainingData.numAttributes() - 1));
+        opNode.right = new Node(NodeType.FEATURE, random.nextInt(trainingData.numAttributes() - 1));
         
         Node compNode = new Node(random.nextBoolean() ? NodeType.GT : NodeType.LT);
         compNode.left = opNode;
@@ -205,7 +207,7 @@ public class GeneticProgramming {
         if (depth >= maxDepth || (depth > 1 && random.nextDouble() < 0.4)) {
             // Terminal node
             if (random.nextBoolean()) {
-                return new Node(NodeType.FEATURE, random.nextInt(trainingData.numFeatures()));
+                return new Node(NodeType.FEATURE, random.nextInt(trainingData.numAttributes() - 1));
             } else {
                 return new Node(NodeType.CONSTANT, random.nextGaussian() * 100);
             }
@@ -238,8 +240,12 @@ public class GeneticProgramming {
         int total = trainingData.numInstances();
         
         for (int i = 0; i < total; i++) {
-            double[] features = trainingData.features[i];
-            double actualLabel = trainingData.labels[i];
+            Instance inst = trainingData.instance(i);
+            double[] features = new double[trainingData.numAttributes() - 1];
+            for (int j = 0; j < trainingData.numAttributes() - 1; j++) {
+                features[j] = inst.value(j);
+            }
+            double actualLabel = inst.classValue();
             
             try {
                 double rawOutput = evaluateTree(individual.root, features);
@@ -429,7 +435,7 @@ public class GeneticProgramming {
                 if (mutationPoint.type == NodeType.CONSTANT) {
                     mutationPoint.value += random.nextGaussian() * 10;
                 } else if (mutationPoint.type == NodeType.FEATURE) {
-                    mutationPoint.featureIndex = random.nextInt(trainingData.numFeatures());
+                    mutationPoint.featureIndex = random.nextInt(trainingData.numAttributes() - 1);
                 }
             } else {
                 // Subtree mutation
@@ -440,16 +446,18 @@ public class GeneticProgramming {
     }
     
     public double[] predict(Object data) {
-        DataLoader.Dataset testData = (DataLoader.Dataset) data;
+        Instances testData = (Instances) data;
         double[] predictions = new double[testData.numInstances()];
-        
         if (bestIndividual == null) {
             System.err.println("Model not trained yet!");
             return predictions;
         }
-        
         for (int i = 0; i < testData.numInstances(); i++) {
-            double[] features = testData.features[i];
+            Instance inst = testData.instance(i);
+            double[] features = new double[testData.numAttributes() - 1];
+            for (int j = 0; j < testData.numAttributes() - 1; j++) {
+                features[j] = inst.value(j);
+            }
             try {
                 double rawPrediction = evaluateTree(bestIndividual.root, features);
                 predictions[i] = rawPrediction > 0 ? 1.0 : 0.0;
@@ -457,7 +465,6 @@ public class GeneticProgramming {
                 predictions[i] = 0.0;
             }
         }
-        
         return predictions;
     }
 }
