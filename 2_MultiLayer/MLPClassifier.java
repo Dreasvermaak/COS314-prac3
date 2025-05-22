@@ -4,84 +4,84 @@ import java.util.*;
 
 public class MLPClassifier {
     
-    // public static void main(String[] args) {
-    //     try {
-    //         // Get seed and filepaths from command line or user input
-    //         Scanner scanner = new Scanner(System.in);
-    //         int seed;
-    //         String trainFile;
-    //         String testFile;
+    public static void main(String[] args) {
+        try {
+            // Get seed and filepaths from command line or user input
+            Scanner scanner = new Scanner(System.in);
+            int seed;
+            String trainFile;
+            String testFile;
             
-    //         if (args.length < 3) {
-    //             System.out.print("Enter seed for reproducibility: ");
-    //             seed = scanner.nextInt();
-    //             scanner.nextLine(); // Consume newline
+            if (args.length < 3) {
+                System.out.print("Enter seed for reproducibility: ");
+                seed = scanner.nextInt();
+                scanner.nextLine(); // Consume newline
                 
-    //             System.out.print("Enter path to training data file: ");
-    //             trainFile = scanner.nextLine();
+                System.out.print("Enter path to training data file: ");
+                trainFile = scanner.nextLine();
                 
-    //             System.out.print("Enter path to test data file: ");
-    //             testFile = scanner.nextLine();
-    //         } else {
-    //             seed = Integer.parseInt(args[0]);
-    //             trainFile = args[1];
-    //             testFile = args[2];
-    //         }
+                System.out.print("Enter path to test data file: ");
+                testFile = scanner.nextLine();
+            } else {
+                seed = Integer.parseInt(args[0]);
+                trainFile = args[1];
+                testFile = args[2];
+            }
             
-    //         System.out.println("Using seed: " + seed);
-    //         System.out.println("Training file: " + trainFile);
-    //         System.out.println("Test file: " + testFile);
+            System.out.println("Using seed: " + seed);
+            System.out.println("Training file: " + trainFile);
+            System.out.println("Test file: " + testFile);
             
-    //         // Check if files exist
-    //         if (!Files.exists(Paths.get(trainFile)) || !Files.exists(Paths.get(testFile))) {
-    //             System.out.println("Error: One or both file paths are invalid.");
-    //             return;
-    //         }
+            // Check if files exist
+            if (!Files.exists(Paths.get(trainFile)) || !Files.exists(Paths.get(testFile))) {
+                System.out.println("Error: One or both file paths are invalid.");
+                return;
+            }
             
-    //         // Check Python and required libraries
-    //         System.out.println("\nChecking Python environment...");
-    //         String pythonCommand = checkPythonEnvironment();
-    //         if (pythonCommand == null) {
-    //             System.out.println("Error: Python is not installed or not in PATH.");
-    //             System.out.println("Please install Python and try again.");
-    //             return;
-    //         }
+            // Check Python and required libraries
+            System.out.println("\nChecking Python environment...");
+            String pythonCommand = checkPythonEnvironment();
+            if (pythonCommand == null) {
+                System.out.println("Error: Python is not installed or not in PATH.");
+                System.out.println("Please install Python and try again.");
+                return;
+            }
             
-    //         // Create the Python script file
-    //         createPythonScript();
+            // Create the Python script file
+            createPythonScript();
             
-    //         // Check if required libraries are installed
-    //         boolean librariesInstalled = checkRequiredLibraries(pythonCommand);
-    //         if (!librariesInstalled) {
-    //             System.out.println("\nInstalling required Python libraries...");
-    //             installRequiredLibraries(pythonCommand);
-    //         }
+            // Check if required libraries are installed
+            boolean librariesInstalled = checkRequiredLibraries(pythonCommand);
+            if (!librariesInstalled) {
+                System.out.println("\nInstalling required Python libraries...");
+                installRequiredLibraries(pythonCommand);
+            }
             
-    //         // Run the Python script with the provided parameters
-    //         System.out.println("\nRunning MLP classifier using Python libraries...");
-    //         ProcessBuilder pb = new ProcessBuilder(pythonCommand, "mlp_script.py", 
-    //                                                String.valueOf(seed), trainFile, testFile);
-    //         pb.inheritIO(); // Redirect Python output to Java console
-    //         Process process = pb.start();
-    //         int exitCode = process.waitFor();
+            // Run the Python script with the provided parameters
+            System.out.println("\nRunning MLP classifier using Python libraries...");
+            ProcessBuilder pb = new ProcessBuilder(pythonCommand, "mlp_script.py", 
+                                                   String.valueOf(seed), trainFile, testFile);
+            pb.inheritIO(); // Redirect Python output to Java console
+            Process process = pb.start();
+            int exitCode = process.waitFor();
             
-    //         if (exitCode == 0) {
-    //             System.out.println("\nMLP classification completed successfully.");
+            if (exitCode == 0) {
+                System.out.println("\nMLP classification completed successfully.");
                 
-    //             // Read and display the results
-    //             if (Files.exists(Paths.get("mlp_results.txt"))) {
-    //                 System.out.println("\nResults from MLP classification:");
-    //                 System.out.println("----------------------------");
-    //                 Files.lines(Paths.get("mlp_results.txt")).forEach(System.out::println);
-    //             }
-    //         } else {
-    //             System.out.println("\nError running MLP classifier. Exit code: " + exitCode);
-    //         }
+                // Read and display the results
+                if (Files.exists(Paths.get("mlp_results.txt"))) {
+                    System.out.println("\nResults from MLP classification:");
+                    System.out.println("----------------------------");
+                    Files.lines(Paths.get("mlp_results.txt")).forEach(System.out::println);
+                }
+            } else {
+                System.out.println("\nError running MLP classifier. Exit code: " + exitCode);
+            }
             
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     private static String checkPythonEnvironment() {
         String[] pythonCommands = {"python", "python3", "py"};
