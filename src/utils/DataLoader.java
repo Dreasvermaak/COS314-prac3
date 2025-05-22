@@ -1,73 +1,92 @@
 package utils;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import weka.core.Instances;
+import weka.core.converters.CSVLoader;
+import weka.core.converters.ArffLoader;
+import java.io.File;
+import java.io.FileInputStream;
 
 public class DataLoader {
-    public static class Dataset {
-        public double[][] features;
-        public double[] labels;
-        public String[] featureNames;
-        
-        public Dataset(double[][] features, double[] labels, String[] featureNames) {
-            this.features = features;
-            this.labels = labels;
-            this.featureNames = featureNames;
-        }
-        
-        public int numInstances() {
-            return labels.length;
-        }
-        
-        public int numFeatures() {
-            return featureNames.length;
-        }
-    }
     
     public Object loadData(String filepath) {
-        List<double[]> featuresList = new ArrayList<>();
-        List<Double> labelsList = new ArrayList<>();
-        String[] featureNames = null;
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(filepath))) {
-            String line = reader.readLine();
-            if (line != null) {
-                // Parse header
-                String[] header = line.split(",");
-                featureNames = new String[header.length - 1]; // Exclude label column
-                for (int i = 0; i < header.length - 1; i++) {
-                    featureNames[i] = header[i];
+        try {
+            File file = new File(filepath);
+            
+            // Check if file exists
+            if (!file.exists()) {
+                System.err.println("File does not exist: " + filepath);
+                return null;
+            }
+            
+            System.out.println("Attempting to load file: " + file.getAbsolutePath());
+            
+            if (filepath.toLowerCase().endsWith(".csv")) {
+                CSVLoader loader = new CSVLoader();
+                
+                // Try different approaches for CSV loading
+                try {
+                    // Method 1: Use FileInputStream
+                    FileInputStream fis = new FileInputStream(file);
+                    loader.setSource(fis);
+                    Instances data = loader.getDataSet();
+                    fis.close();
+                    
+                    // Set class index to last attribute
+                    if (data.classIndex() == -1) {
+                        data.setClassIndex(data.numAttributes() - 1);
+                    }
+                    
+                    System.out.println("Successfully loaded CSV data: " + data.numInstances() + " instances, " + 
+                                     data.numAttributes() + " attributes");
+                    System.out.println("Class attribute: " + data.classAttribute().name());
+                    return data;
+                    
+                } catch (Exception e1) {
+                    System.out.println("Method 1 failed, trying Method 2...");
+                    
+                    // Method 2: Use setFile
+                    try {
+                        loader = new CSVLoader();
+                        loader.setFile(file);
+                        Instances data = loader.getDataSet();
+                        
+                        // Set class index to last attribute
+                        if (data.classIndex() == -1) {
+                            data.setClassIndex(data.numAttributes() - 1);
+                        }
+                        
+                        System.out.println("Successfully loaded CSV data: " + data.numInstances() + " instances, " + 
+                                         data.numAttributes() + " attributes");
+                        System.out.println("Class attribute: " + data.classAttribute().name());
+                        return data;
+                        
+                    } catch (Exception e2) {
+                        System.err.println("Both CSV loading methods failed.");
+                        System.err.println("Method 1 error: " + e1.getMessage());
+                        System.err.println("Method 2 error: " + e2.getMessage());
+                        return null;
+                    }
                 }
                 
-                // Parse data
-                while ((line = reader.readLine()) != null) {
-                    String[] values = line.split(",");
-                    double[] features = new double[values.length - 1];
-                    for (int i = 0; i < values.length - 1; i++) {
-                        features[i] = Double.parseDouble(values[i]);
-                    }
-                    featuresList.add(features);
-                    labelsList.add(Double.parseDouble(values[values.length - 1]));
+            } else if (filepath.toLowerCase().endsWith(".arff")) {
+                ArffLoader loader = new ArffLoader();
+                loader.setFile(file);
+                Instances data = loader.getDataSet();
+                
+                // Set class index to last attribute
+                if (data.classIndex() == -1) {
+                    data.setClassIndex(data.numAttributes() - 1);
                 }
+                
+                System.out.println("Successfully loaded ARFF data: " + data.numInstances() + " instances, " + 
+                                 data.numAttributes() + " attributes");
+                return data;
+            } else {
+                System.err.println("Unsupported file format: " + filepath);
+                return null;
             }
-            
-            // Convert lists to arrays
-            double[][] featuresArray = new double[featuresList.size()][];
-            for (int i = 0; i < featuresList.size(); i++) {
-                featuresArray[i] = featuresList.get(i);
-            }
-            
-            double[] labelsArray = new double[labelsList.size()];
-            for (int i = 0; i < labelsList.size(); i++) {
-                labelsArray[i] = labelsList.get(i);
-            }
-            
-            return new Dataset(featuresArray, labelsArray, featureNames);
-        } catch (IOException e) {
-            System.err.println("Error loading data: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error loading data from " + filepath + ": " + e.getMessage());
             e.printStackTrace();
             return null;
         }
