@@ -1,5 +1,5 @@
 ===== MLP Classification Results =====
-Seed: 123
+Seed: 12345
 Training file: BTC_train.csv
 Test file: BTC_test.csv
 
@@ -12,19 +12,19 @@ Batch size: auto
 Learning rate: adaptive
 Maximum iterations: 1000
 
-Accuracy: 0.5057
-F1 Score: 0.3397
+Accuracy: 0.9163
+F1 Score: 0.9158
 
 Confusion Matrix:
-[[  0 130]
- [  0 133]]
+[[130   0]
+ [ 22 111]]
 
 Classification Report:
               precision    recall  f1-score   support
 
-           0       0.00      0.00      0.00       130
-           1       0.51      1.00      0.67       133
+           0       0.86      1.00      0.92       130
+           1       1.00      0.83      0.91       133
 
-    accuracy                           0.51       263
-   macro avg       0.25      0.50      0.34       263
-weighted avg       0.26      0.51      0.34       263
+    accuracy                           0.92       263
+   macro avg       0.93      0.92      0.92       263
+weighted avg       0.93      0.92      0.92       263
