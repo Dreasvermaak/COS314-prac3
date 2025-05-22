@@ -1,7 +1,7 @@
 ===== MLP Classification Results =====
-Seed: 42
-Training file: mlp_test.csv
-Test file: mlp_test.csv
+Seed: 12345
+Training file: mlp_train_data.csv
+Test file: mlp_test_data.csv
 
 MLP Configuration:
 Hidden layer sizes: (10, 5)
@@ -12,19 +12,19 @@ Batch size: auto
 Learning rate: adaptive
 Maximum iterations: 1000
 
-Accuracy: 0.9886
-F1 Score: 0.9886
+Accuracy: 0.9163
+F1 Score: 0.9158
 
 Confusion Matrix:
-[[129   1]
- [  2 131]]
+[[130   0]
+ [ 22 111]]
 
 Classification Report:
               precision    recall  f1-score   support
 
-           0       0.98      0.99      0.99       130
-           1       0.99      0.98      0.99       133
+         0.0       0.86      1.00      0.92       130
+         1.0       1.00      0.83      0.91       133
 
-    accuracy                           0.99       263
-   macro avg       0.99      0.99      0.99       263
-weighted avg       0.99      0.99      0.99       263
+    accuracy                           0.92       263
+   macro avg       0.93      0.92      0.92       263
+weighted avg       0.93      0.92      0.92       263

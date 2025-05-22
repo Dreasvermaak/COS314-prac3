@@ -2,21 +2,60 @@ package models;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
-import weka.core.Instances;
-import weka.core.converters.CSVSaver;
 
 public class MLPClassifier {
+    private long seed;
+    private String trainingDataPath;
     
-    // Add a constructor that accepts a seed (for compatibility)
     public MLPClassifier(long seed) {
-        // Optionally store the seed if needed for future use
+        this.seed = seed;
         System.out.println("MLPClassifier initialized with seed: " + seed);
     }
 
-    // Add a train method for compatibility
     public void train(Object data) {
-        // Optionally implement training logic if needed
-        System.out.println("MLPClassifier.train() called. Training is handled in predict().");
+        try {
+            // Convert Weka Instances to CSV file
+            this.trainingDataPath = "mlp_train_data.csv";
+            writeInstancesToCSV(data, this.trainingDataPath);
+            System.out.println("MLPClassifier training data prepared: " + this.trainingDataPath);
+        } catch (Exception e) {
+            System.err.println("Error preparing training data: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    private void writeInstancesToCSV(Object data, String filename) throws Exception {
+        // Use reflection to handle Weka Instances without importing weka classes
+        Class<?> instancesClass = data.getClass();
+        
+        // Get number of instances and attributes
+        int numInstances = (Integer) instancesClass.getMethod("numInstances").invoke(data);
+        int numAttributes = (Integer) instancesClass.getMethod("numAttributes").invoke(data);
+        
+        PrintWriter writer = new PrintWriter(filename);
+        
+        // Write header
+        StringBuilder header = new StringBuilder();
+        for (int i = 0; i < numAttributes; i++) {
+            Object attribute = instancesClass.getMethod("attribute", int.class).invoke(data, i);
+            String attrName = (String) attribute.getClass().getMethod("name").invoke(attribute);
+            header.append(attrName);
+            if (i < numAttributes - 1) header.append(",");
+        }
+        writer.println(header.toString());
+        
+        // Write data
+        for (int i = 0; i < numInstances; i++) {
+            Object instance = instancesClass.getMethod("instance", int.class).invoke(data, i);
+            StringBuilder row = new StringBuilder();
+            for (int j = 0; j < numAttributes; j++) {
+                double value = (Double) instance.getClass().getMethod("value", int.class).invoke(instance, j);
+                row.append(value);
+                if (j < numAttributes - 1) row.append(",");
+            }
+            writer.println(row.toString());
+        }
+        writer.close();
     }
     
     private static String checkPythonEnvironment() {
@@ -43,7 +82,6 @@ public class MLPClassifier {
     }
     
     private static boolean checkRequiredLibraries(String pythonCommand) {
-        // Fixed string with proper newlines
         String checkLibrariesScript = 
             "try:\n" +
             "    import numpy\n" +
@@ -56,10 +94,8 @@ public class MLPClassifier {
             "    exit(1)\n";
         
         try {
-            // Create the check script
             Files.write(Paths.get("check_libraries.py"), checkLibrariesScript.getBytes());
             
-            // Run the check script
             ProcessBuilder pb = new ProcessBuilder(pythonCommand, "check_libraries.py");
             Process process = pb.start();
             
@@ -88,7 +124,6 @@ public class MLPClassifier {
         try {
             System.out.println("Attempting to install required Python libraries...");
             
-            // Try pip first
             String[] pipCommands = {pythonCommand + " -m pip", "pip", "pip3"};
             boolean installed = false;
             
@@ -99,7 +134,6 @@ public class MLPClassifier {
                     System.out.println("Trying to install with: " + pipCmd);
                     ProcessBuilder pb = new ProcessBuilder();
                     
-                    // Split the command into parts
                     String[] cmdParts;
                     if (pipCmd.contains(" ")) {
                         cmdParts = pipCmd.split(" ");
@@ -151,7 +185,6 @@ public class MLPClassifier {
             import sys
             
             def main():
-                # Get seed and filepaths from command line arguments
                 if len(sys.argv) < 4:
                     print("Usage: python mlp_script.py <seed> <train_file_path> <test_file_path>")
                     return
@@ -164,11 +197,9 @@ public class MLPClassifier {
                 print("Training file: {}".format(train_file))
                 print("Test file: {}".format(test_file))
                 
-                # Set random seed for reproducibility
                 random.seed(seed)
                 np.random.seed(seed)
                 
-                # Load data
                 try:
                     print("Loading data...")
                     train_data = pd.read_csv(train_file)
@@ -181,23 +212,19 @@ public class MLPClassifier {
                     print("Error loading data: {}".format(e))
                     return
                 
-                # Separate features and target
                 X_train = train_data.drop('Output', axis=1)
                 y_train = train_data['Output']
                 X_test = test_data.drop('Output', axis=1)
                 y_test = test_data['Output']
                 
-                # Print class distribution
                 print("Training class distribution: {}".format(np.bincount(y_train)))
                 print("Test class distribution: {}".format(np.bincount(y_test)))
                 
-                # Standardize the features
                 print("Standardizing features...")
                 scaler = StandardScaler()
                 X_train_scaled = scaler.fit_transform(X_train)
                 X_test_scaled = scaler.transform(X_test)
                 
-                # Create and train the MLP classifier
                 print("\\nMLP Configuration:")
                 hidden_layers = (10, 5)
                 activation = 'relu'
@@ -232,7 +259,10 @@ public class MLPClassifier {
                 print("Making predictions...")
                 y_pred = mlp.predict(X_test_scaled)
                 
-                # Calculate metrics
+                with open("mlp_predictions.txt", "w") as f:
+                    for pred in y_pred:
+                        f.write(str(pred) + "\\n")
+                
                 accuracy = accuracy_score(y_test, y_pred)
                 f1 = f1_score(y_test, y_pred, average='weighted')
                 conf_matrix = confusion_matrix(y_test, y_pred)
@@ -246,7 +276,6 @@ public class MLPClassifier {
                 print("\\nClassification Report:")
                 print(class_report)
                 
-                # Save the results to a file
                 with open("mlp_results.txt", "w") as f:
                     f.write("===== MLP Classification Results =====\\n")
                     f.write("Seed: {}\\n".format(seed))
@@ -268,6 +297,7 @@ public class MLPClassifier {
                     f.write(class_report)
                 
                 print("Results saved to mlp_results.txt")
+                print("Predictions saved to mlp_predictions.txt")
                 
                 return accuracy, f1
             
@@ -279,41 +309,45 @@ public class MLPClassifier {
         System.out.println("Python script created: mlp_script.py");
     }
 
-    // Add a predict method compatible with Evaluator
     public double[] predict(Object data) {
         try {
-            Instances instances = (Instances) data;
-            // Write test data to CSV
-            String testCsv = "mlp_test.csv";
-            CSVSaver saver = new CSVSaver();
-            saver.setInstances(instances);
-            saver.setFile(new File(testCsv));
-            saver.writeBatch();
+            if (this.trainingDataPath == null) {
+                throw new RuntimeException("Model not trained yet. Call train() first.");
+            }
+            
+            String testCsv = "mlp_test_data.csv";
+            writeInstancesToCSV(data, testCsv);
 
-            // Assume training file is already available or not needed for prediction
-            // For demo, use test file as both train and test (should be replaced with real train file)
-            String trainCsv = testCsv;
-            int seed = 42;
-
-            // Ensure Python script exists
             createPythonScript();
             String pythonCmd = checkPythonEnvironment();
             if (pythonCmd == null) throw new RuntimeException("Python not found");
             if (!checkRequiredLibraries(pythonCmd)) installRequiredLibraries(pythonCmd);
 
-            // Run the Python script
-            ProcessBuilder pb = new ProcessBuilder(pythonCmd, "mlp_script.py", String.valueOf(seed), trainCsv, testCsv);
+            ProcessBuilder pb = new ProcessBuilder(pythonCmd, "mlp_script.py", 
+                                                  String.valueOf(this.seed), 
+                                                  this.trainingDataPath, 
+                                                  testCsv);
             pb.inheritIO();
             Process process = pb.start();
             int exitCode = process.waitFor();
             if (exitCode != 0) throw new RuntimeException("Python MLP script failed");
 
-            // Read predictions from mlp_results.txt (simulate: use accuracy to generate predictions)
-            // In a real implementation, the Python script should output predictions to a file
-            // Here, we just return all zeros for demo
-            double[] predictions = new double[instances.numInstances()];
-            Arrays.fill(predictions, 0.0); // Placeholder: replace with real predictions
+            List<Double> predictionsList = new ArrayList<>();
+            BufferedReader reader = new BufferedReader(new FileReader("mlp_predictions.txt"));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                predictionsList.add(Double.parseDouble(line.trim()));
+            }
+            reader.close();
+            
+            double[] predictions = new double[predictionsList.size()];
+            for (int i = 0; i < predictionsList.size(); i++) {
+                predictions[i] = predictionsList.get(i);
+            }
+            
+            System.out.println("MLPClassifier predictions loaded: " + predictions.length + " predictions");
             return predictions;
+            
         } catch (Exception e) {
             System.err.println("Error in MLPClassifier.predict: " + e.getMessage());
             e.printStackTrace();

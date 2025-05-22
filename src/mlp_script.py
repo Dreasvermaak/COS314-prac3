@@ -7,7 +7,6 @@ import random
 import sys
 
 def main():
-    # Get seed and filepaths from command line arguments
     if len(sys.argv) < 4:
         print("Usage: python mlp_script.py <seed> <train_file_path> <test_file_path>")
         return
@@ -20,11 +19,9 @@ def main():
     print("Training file: {}".format(train_file))
     print("Test file: {}".format(test_file))
 
-    # Set random seed for reproducibility
     random.seed(seed)
     np.random.seed(seed)
 
-    # Load data
     try:
         print("Loading data...")
         train_data = pd.read_csv(train_file)
@@ -37,23 +34,19 @@ def main():
         print("Error loading data: {}".format(e))
         return
 
-    # Separate features and target
     X_train = train_data.drop('Output', axis=1)
     y_train = train_data['Output']
     X_test = test_data.drop('Output', axis=1)
     y_test = test_data['Output']
 
-    # Print class distribution
     print("Training class distribution: {}".format(np.bincount(y_train)))
     print("Test class distribution: {}".format(np.bincount(y_test)))
 
-    # Standardize the features
     print("Standardizing features...")
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
 
-    # Create and train the MLP classifier
     print("\nMLP Configuration:")
     hidden_layers = (10, 5)
     activation = 'relu'
@@ -88,7 +81,10 @@ def main():
     print("Making predictions...")
     y_pred = mlp.predict(X_test_scaled)
 
-    # Calculate metrics
+    with open("mlp_predictions.txt", "w") as f:
+        for pred in y_pred:
+            f.write(str(pred) + "\n")
+
     accuracy = accuracy_score(y_test, y_pred)
     f1 = f1_score(y_test, y_pred, average='weighted')
     conf_matrix = confusion_matrix(y_test, y_pred)
@@ -102,7 +98,6 @@ def main():
     print("\nClassification Report:")
     print(class_report)
 
-    # Save the results to a file
     with open("mlp_results.txt", "w") as f:
         f.write("===== MLP Classification Results =====\n")
         f.write("Seed: {}\n".format(seed))
@@ -124,6 +119,7 @@ def main():
         f.write(class_report)
 
     print("Results saved to mlp_results.txt")
+    print("Predictions saved to mlp_predictions.txt")
 
     return accuracy, f1
 
