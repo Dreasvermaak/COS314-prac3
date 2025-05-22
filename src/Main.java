@@ -7,15 +7,18 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         
         // Get seed value and filepath
-        System.out.print("Enter seed value: ");
-        long seed = scanner.nextLong();
-        scanner.nextLine(); // Consume newline
+        long seed = 12345;
+        System.out.print("seed value: " + seed );
+        // long seed = scanner.nextLong();
+        // scanner.nextLine(); // Consume newline
         
-        System.out.print("Enter training data filepath: ");
-        String trainingPath = scanner.nextLine();
+        String trainingPath = "Euro_USD_Stock/BTC_train.csv";
+        System.out.print("Training data filepath: " + trainingPath );
+        // String trainingPath = scanner.nextLine();
         
-        System.out.print("Enter test data filepath: ");
-        String testPath = scanner.nextLine();
+        String testPath = "Euro_USD_Stock/BTC_test.csv";
+        System.out.print("Test data filepath: nter "+ testPath );
+        // String testPath = scanner.nextLine();
         
         // Load data
         DataLoader dataLoader = new DataLoader();
