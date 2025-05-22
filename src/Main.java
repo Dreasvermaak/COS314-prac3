@@ -12,11 +12,11 @@ public class Main {
         // long seed = scanner.nextLong();
         // scanner.nextLine(); // Consume newline
         
-        String trainingPath = "Euro_USD_Stock/BTC_train.csv";
+        String trainingPath = "../Euro_USD_Stock/BTC_train.csv";
         System.out.print("Training data filepath: " + trainingPath );
         // String trainingPath = scanner.nextLine();
         
-        String testPath = "Euro_USD_Stock/BTC_test.csv";
+        String testPath = "../Euro_USD_Stock/BTC_test.csv";
         System.out.print("Test data filepath: nter "+ testPath );
         // String testPath = scanner.nextLine();
         

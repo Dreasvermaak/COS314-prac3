@@ -1,0 +1,30 @@
+===== MLP Classification Results =====
+Seed: 42
+Training file: mlp_test.csv
+Test file: mlp_test.csv
+
+MLP Configuration:
+Hidden layer sizes: (10, 5)
+Activation function: relu
+Solver: adam
+Alpha (L2 penalty): 0.0001
+Batch size: auto
+Learning rate: adaptive
+Maximum iterations: 1000
+
+Accuracy: 0.9886
+F1 Score: 0.9886
+
+Confusion Matrix:
+[[129   1]
+ [  2 131]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.98      0.99      0.99       130
+           1       0.99      0.98      0.99       133
+
+    accuracy                           0.99       263
+   macro avg       0.99      0.99      0.99       263
+weighted avg       0.99      0.99      0.99       263
