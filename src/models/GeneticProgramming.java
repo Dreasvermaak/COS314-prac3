@@ -1,10 +1,7 @@
-package models;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import utils.DataLoader.Dataset;
 
 public class GeneticProgramming {
     // Core GP parameters
@@ -272,7 +269,7 @@ public class GeneticProgramming {
      * Train the GP model on the given dataset
      */
     public void train(Object trainingData) {
-        Dataset data = (Dataset) trainingData;
+        DataLoader.Dataset data = (DataLoader.Dataset) trainingData; 
         numFeatures = data.numFeatures();
         featureNames = data.featureNames;
         
@@ -353,7 +350,7 @@ public class GeneticProgramming {
      * Calculate the fitness of an individual program tree
      * For a classifier, this is the accuracy on the training set
      */
-    private double calculateFitness(TreeNode program, Dataset data) {
+    private double calculateFitness(TreeNode program, DataLoader.Dataset data) { // Adjusted type
         int correct = 0;
         int total = data.numInstances();
         
@@ -376,19 +373,18 @@ public class GeneticProgramming {
     /**
      * Evaluate the fitness of all individuals in the population
      */
-    private void evaluatePopulation(Dataset data) {
+    private void evaluatePopulation(DataLoader.Dataset data) { // Adjusted type
         for (int i = 0; i < populationSize; i++) {
             fitness[i] = calculateFitness(population[i], data);
         }
     }
-    
-    // The rest of the methods stay the same, with minor adjustments for the Dataset class
-    
+
     /**
      * Use the best evolved program to make predictions on new data
      */
     public double[] predict(Object testData) {
-        Dataset data = (Dataset) testData;
+        // Adjust the cast as necessary
+        DataLoader.Dataset data = (DataLoader.Dataset) testData;
         int numInstances = data.numInstances();
         double[] predictions = new double[numInstances];
         
