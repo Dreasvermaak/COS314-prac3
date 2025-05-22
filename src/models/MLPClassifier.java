@@ -7,6 +7,17 @@ import weka.core.converters.CSVSaver;
 
 public class MLPClassifier {
     
+    // Add a constructor that accepts a seed (for compatibility)
+    public MLPClassifier(long seed) {
+        // Optionally store the seed if needed for future use
+        System.out.println("MLPClassifier initialized with seed: " + seed);
+    }
+
+    // Add a train method for compatibility
+    public void train(Object data) {
+        // Optionally implement training logic if needed
+        System.out.println("MLPClassifier.train() called. Training is handled in predict().");
+    }
     
     private static String checkPythonEnvironment() {
         String[] pythonCommands = {"python", "python3", "py"};
